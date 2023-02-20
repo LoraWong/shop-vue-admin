@@ -3,6 +3,7 @@
 import {Rule} from './rule'
 import { CSSProperties } from 'vue'
 
+
 export interface IFormItem {
   // 表单元素类型
   type: 'cascader' | 'checkbox' | 'checkbox-group' | 'checkbox-button' | 'color-picker' |
@@ -21,10 +22,10 @@ export interface IFormItem {
   rules?: Rule,
   // 表单占位符
   placeholder?: string,
-  // 插槽名称
+  //type为slot时， 插槽名称
   slotName?: string,
   // 组件联动, 隐藏表单元素的条件
-  // {order: 0}，order值为0时，隐藏该item
+  // 例如， {order: 0}，order值为0时，隐藏该item
   isHiddenObj: object,
   // 表单元素的特有属性(很多，先写几个常用的，以后可以再补充)
   attrs?: {
@@ -37,9 +38,6 @@ export interface IFormItem {
     // css样式
     style?: CSSProperties
   },
- 
-  // 表单宽度(响应式)
-  ItemColLayout?: any,
   // 表单元素的子元素配置（如 select、checkbox
   childrenOptions: ChildrenOptions,
   inputOptions: InputOptions,
@@ -63,7 +61,10 @@ export interface IFormItem {
     limit?: number,
   },
   // upload插槽名称
-  UploadSlotName?: UploadSlotName ,
+  UploadSlotName?: UploadSlotName,
+  // item里面的插槽
+  headerSlot: string,
+  footerSlot: string
 }
 
 interface UploadSlotName {
@@ -93,18 +94,17 @@ export interface radioKeyOption {
 }
 
 interface InputOptions {
-  // input插槽文本
+  // input插槽内容
+  // 文本插槽
   prependText?: string | number,
   appendText?: string | number,  
+  // 自定义插槽，使用函数返回，再用v-html插入DOM中
+  prependCallback?: ( ) => any,
+  appendCallback?: ( ) => any
 }
 
 
 export interface IForm {
-  // title?: string
   formItems: IFormItem[]
   labelWidth?: string
-  // itemStyle: any
-  // 表单宽度(响应式)
-  colLayout?: any,
-  keyOptions?: object
 }

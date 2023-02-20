@@ -1,18 +1,45 @@
 <template>
-  <el-form v-if="model" ref="formTarget" :validate-on-rule-change="false" v-bind="$attrs" :rules="rule" :model="model" :label-width="labelWidth">
+  <el-form
+    v-if="modelValue"
+    ref="formTarget"
+    :validate-on-rule-change="false"
+    v-bind="$attrs"
+    :rules="rule"
+    :model="modelValue"
+    :label-width="labelWidth"
+  >
     <!-- <el-row> -->
     <!--不循环row，直接循环col，放不下会自动往下换行。-->
 
     <template v-for="(item, index) in formItems" :key="item.key || index">
       <!-- <el-col v-bind="item.ItemColLayout || colLayout"> -->
       <el-form-item v-if="!isHidden[item.prop]" :label="item.label" :prop="item.prop">
+        <!-- header slot -->
+        <slot :name="item.headerSlot"></slot>
         <!-- input -->
-        <el-input v-if="item.type === 'input'" v-model="model[item.prop!]" :placeholder="item.placeholder" v-bind="item.attrs">
+        <el-input
+          v-if="item.type === 'input'"
+          :model-value="modelValue[item.prop!]"
+          @input="onChangeHandler($event, item.prop)"
+          :placeholder="item.placeholder"
+          v-bind="item.attrs"
+        >
+          <!-- 文本 -->
           <template v-if="item.inputOptions?.prependText" #prepend>{{ item.inputOptions.prependText }}</template>
           <template v-else-if="item.inputOptions?.appendText" #append>{{ item.inputOptions.appendText }}</template>
+          <!-- 自定义文本 -->
+          <template v-else-if="item.inputOptions?.prependCallback" #prepend><div v-html="item.inputOptions.prependCallback()"></div></template>
+          <template v-else-if="item.inputOptions?.appendCallback" #append><div v-html="item.inputOptions.appendCallback()"></div></template>
         </el-input>
         <!-- select -->
-        <el-select v-else-if="item.type === 'select'" v-model="model[item.prop!]" :placeholder="item.placeholder" v-bind="item.attrs">
+        <el-select
+          v-else-if="item.type === 'select'"
+          :model-value="modelValue[item.prop!]"
+          @change="onChangeHandler($event, item.prop)"
+          :placeholder="item.placeholder"
+          v-bind="item.attrs"
+        >
+        <!-- 支持异步数据 -->
           <el-option
             v-for="option in item.childrenOptions.dataArr"
             :key="option[item.childrenOptions.keyOption!.key!] || option[(item.childrenOptions.keyOption as selectKeyOption).value!]"
@@ -21,7 +48,12 @@
           ></el-option>
         </el-select>
         <!-- radio -->
-        <el-radio-group v-else-if="item.type === 'radio'" v-model="model[item.prop!]" v-bind="item.attrs">
+        <el-radio-group
+          v-else-if="item.type === 'radio'"
+          :model-value="modelValue[item.prop!]"
+          @change="onChangeHandler($event, item.prop)"
+          v-bind="item.attrs"
+        >
           <el-radio
             v-for="option in item.childrenOptions.dataArr"
             :key="option[item.childrenOptions.keyOption!.key!] || option[item.childrenOptions.keyOption!.label]"
@@ -29,6 +61,8 @@
             >{{ option[(item.childrenOptions.keyOption as radioKeyOption).radioText!] }}</el-radio
           >
         </el-radio-group>
+        <!-- date Picker -->
+        
         <!-- upload组件 -->
         <el-upload
           v-else-if="item.type === 'upload'"
@@ -53,7 +87,14 @@
         <!-- 插槽 -->
         <slot v-else-if="item.type === 'slot'" :name="item.slotName"></slot>
         <!-- 其他组件 -->
-        <component v-else :is="`el-${item.type}`" v-bind="item.attrs" v-model="model[item.prop!]"></component>
+        <component
+          v-else
+          :is="`el-${item.type}`"
+          v-bind="item.attrs"
+          :model-value="modelValue[item.prop!]"
+          @change="onChangeHandler($event, item.prop)"
+        ></component>
+        <slot :name="item.footerSlot"></slot>
       </el-form-item>
       <!-- </el-col> -->
     </template>
@@ -78,42 +119,70 @@ const ON_EXCEED = 'on-exceed'
 </script>
 
 <script setup lang="ts">
-import { PropType, ref, watch, nextTick, onMounted } from 'vue'
+import { PropType, ref, watch, nextTick, onMounted, computed } from 'vue'
 import { IFormItem, IForm, selectKeyOption, radioKeyOption } from './types'
 import cloneDeep from 'lodash/cloneDeep'
 import type { ElForm } from 'element-plus'
 import E from 'wangeditor'
-import { init } from 'echarts'
 
 const props = defineProps({
+  // 比表单数据源
+  modelValue: {
+    type: Object,
+    required: true,
+  },
   // 表单配置项
   formItems: {
     type: Array as PropType<IFormItem[]>,
     required: true,
   },
-  // 表单值
+  // label宽度
   labelWidth: {
     type: Number,
     default: () => 100,
   },
-  // 表单宽度(响应式)
-  colLayout: {
-    type: Object,
-    default: () => ({
-      xl: 6, // ≥1920px
-      lg: 8, // ≥1200px
-      md: 12, // ≥992px
-      sm: 24, // ≥768px
-      xs: 24, // <768px
-    }),
-  },
-  // 用户自定义上传方法
+  //upload组件： 用户自定义上传方法
   httpRequest: {
     type: Function,
   },
 })
 
-const emits = defineEmits([ON_PREVIEW, ON_REMOVE, ON_SUCCESS, ON_PROGRESS, ON_ERROR, ON_CHANGE, BEFORE_UPLOAD, BEFORE_REMOVE, ON_EXCEED])
+const emits = defineEmits([
+  'update:modelValue',
+  ON_PREVIEW,
+  ON_REMOVE,
+  ON_SUCCESS,
+  ON_PROGRESS,
+  ON_ERROR,
+  ON_CHANGE,
+  BEFORE_UPLOAD,
+  BEFORE_REMOVE,
+  ON_EXCEED,
+])
+
+
+/**
+ * @description: 处理组合式API setup emit(‘update:modelValue‘) 无效的问题
+ */
+// 必须用computed包装一层而且需设置get和set
+const modelValueRef = computed({
+  get: () => props.modelValue,
+  // 通过 computed的 set方法 触发 emit(‘update:modelValue‘)
+  set: (value) => emits('update:modelValue', value),
+})
+
+/**
+ * @description: 双向数据绑定
+ * 表单元素值发生变化，触发change事件，通知父组件修改 modelValue
+ */
+const onChangeHandler = (val, prop: string) => {
+  // bug: 无法修改 modelValue
+  // emits('update:modelValue', newModelValue)
+  // update: 通过修改 computed数据，间接通过set方法 触发 emit(‘update:modelValue‘)
+  modelValueRef.value[prop] = val
+  console.log('🚀 ~ file: index.vue:192 ~ onChangeHandler ~  modelValueRef.value:', modelValueRef.value)
+  console.log(props.modelValue)
+}
 
 /**
  * @description: 初始化表单
@@ -135,12 +204,12 @@ let editor
 const initForm = () => {
   if (props.formItems && props.formItems.length) {
     let r: any = {}
-    let m: any = {}
+    // let m: any = {}
 
     props.formItems.forEach((item: IFormItem) => {
       if (item.prop) {
         r[item.prop] = item.rules
-        m[item.prop] = item.value
+        // m[item.prop] = item.value
       }
       // 初始化编辑器
       if (item.type === 'editor') {
@@ -149,7 +218,7 @@ const initForm = () => {
     })
 
     // 需要深拷贝，否则深层数据对象会相互影响
-    model.value = cloneDeep(m)
+    // model.value = cloneDeep(m)
     rule.value = cloneDeep(r)
   }
 }
@@ -170,52 +239,48 @@ const initEditor = (item: IFormItem) => {
       // 输入内容后保存
       editor.config.onchange = (newHtml: string) => {
         console.log(newHtml)
-        model.value[item.prop!] = newHtml
+        modelValueRef.value[item.prop!] = newHtml
       }
     }
   })
 }
 
-
-watch(
-  () => props.formItems,
-  (newVal) => {
-    initForm()
-    console.log(props.formItems)
-    console.log(model.value)
-  },
-  { immediate: true, deep: true }
-)
-
 /**
  * @description: 组件 item联动（某项值为特定值时，隐藏指定的item
  * isHiddenObj：{order: 0}，order值为0时，隐藏该item
  */
-watch(
-  model.value,
-  (newVal) => {
-    if (props.formItems && props.formItems.length) {
-      props.formItems.forEach((item) => {
-        // 当前item的prop值
-        const itemProp = item.prop
-        for (let key in item.isHiddenObj) {
-          // 判断是否 满足 隐藏条件
-          if (model.value[key] === item.isHiddenObj[key]) {
-            // 隐藏 item
-            isHidden.value[itemProp] = true
-            console.log('true')
-          } else {
-            // 不隐藏 item
-            isHidden.value[itemProp] = false
-            console.log('false')
+const hiddenItem = () => {
+  watch(
+    modelValueRef.value,
+    (newVal) => {
+      if (props.formItems && props.formItems.length) {
+        props.formItems.forEach((item) => {
+          // 当前item的prop值
+          const itemProp = item.prop
+          for (let key in item.isHiddenObj) {
+            // 判断是否 满足 隐藏条件
+            if (modelValueRef.value[key] === item.isHiddenObj[key]) {
+              // 隐藏 item
+              isHidden.value[itemProp] = true
+              console.log('true')
+            } else {
+              // 不隐藏 item
+              isHidden.value[itemProp] = false
+              console.log('false')
+            }
           }
-        }
-      })
-      console.log('🚀 ~ file: index.vue:199 ~ props.formItems.forEach ~  isHidden.value', isHidden.value)
-    }
-  },
-  { immediate: true, deep: true }
-)
+        })
+        console.log('🚀 ~ file: index.vue:199 ~ props.formItems.forEach ~  isHidden.value', isHidden.value)
+      }
+    },
+    { immediate: true, deep: true }
+  )
+}
+
+onMounted(() => {
+  initForm()
+  hiddenItem()
+})
 
 /**
  * @description: 重置表单
@@ -242,15 +307,15 @@ let getValidate = () => {
   return formTarget.value!.validate
 }
 // 获取表单数据
-let getFormData = () => {
-  return model.value
-}
+// let getFormData = () => {
+//   return model.value
+// }
 
 // 分发方法
 defineExpose({
   resetFields,
   getValidate,
-  getFormData,
+  // getFormData,
 })
 
 // bug: upload组件的插槽配置，需要通过formItems传入自定义插槽名字
@@ -269,7 +334,7 @@ let onSuccess = (response: any, file: File, fileList: FileList) => {
   // 上传图片成功 给表单上传项赋值
   // bug: 多个upload组件，如何识别是哪个upload
   let uploadItem = props.formItems.find((item) => item.type === 'upload')!
-  model.value[uploadItem.prop!] = { response, file, fileList }
+  modelValueRef.value[uploadItem.prop!] = { response, file, fileList }
   emits(ON_SUCCESS, { response, file, fileList })
 }
 

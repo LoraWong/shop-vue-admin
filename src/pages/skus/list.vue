@@ -38,31 +38,16 @@
     </div>
 
     <FormDrawer destroyOnClose ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
-   <!--    <el-form :model="form" ref="formRef" :rules="rules" label-width="80px" :inline="false">
-        <el-form-item label="规格名称" prop="name">
-          <el-input v-model="form.name" placeholder="规格名称"></el-input>
-        </el-form-item>
-        <el-form-item label="排序" prop="order">
-          <el-input-number v-model="form.order" :min="0" :max="1000"> </el-input-number>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch v-model="form.status" :active-value="1" :inactive-value="0"> </el-switch>
-        </el-form-item>
-        <el-form-item label="规格值" prop="default">
-          <TagInput v-model="form.default" />
-        </el-form-item>
-      </el-form> -->
-      <m-form :formItems="options.formItems" ref="formRef">
+      <m-form-model :formItems="options.formItems" v-model="form" ref="formRef">
         <template #skuValue>
           <TagInput v-model="form.default" />
         </template>
-      </m-form>
+      </m-form-model>
     </FormDrawer>
   </el-card>
 </template>
 <script setup>
-import mForm from '~/components/Form/index.vue'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ListHeader from '~/components/ListHeader.vue'
 import FormDrawer from '~/components/FormDrawer.vue'
 import TagInput from '~/components/TagInput.vue'
@@ -121,7 +106,7 @@ const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCr
   getData,
   update: updateSkus,
   create: createSkus,
-  beforeSubmit,
+  // beforeSubmit,
 })
 
 // 表单配置
@@ -131,15 +116,13 @@ const options = computed(() => {
       {
         type: 'input',
         prop: 'name',
-        value: form.name,
         label: '规格名称',
         placeholder: '规格名称',
-        rules: rules.name
+        rules: rules.name,
       },
       {
         type: 'input-number',
         prop: 'order',
-        value: form.order,
         label: '排序',
         attrs: {
           min: 0,
@@ -149,7 +132,6 @@ const options = computed(() => {
       {
         type: 'switch',
         prop: 'status',
-        value: form.status,
         label: '状态',
         attrs: {
           activeValue: 1,
@@ -160,12 +142,21 @@ const options = computed(() => {
         type: 'slot',
         label: '规格值',
         prop: 'default',
-        value: form.default,
         slotName: 'skuValue',
+        // 规则不可用
+        isHiddenObj: {
+          status: 1,
+        },
+        rules: [
+          {
+            required: true,
+            message: '规格值不能为空',
+            trigger: 'change'
+          },
+        ],
       },
     ],
   }
 })
-
 
 </script>

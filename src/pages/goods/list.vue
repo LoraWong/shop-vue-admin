@@ -188,11 +188,11 @@
             </el-radio-group>
           </el-form-item>
         </el-form> -->
-        <m-form :formItems="options1.formItems" ref="formRef">
+        <m-form-model :formItems="options1.formItems" v-model="form" ref="formRef">
           <template #uploadImg>
             <ChooseImage v-model="form.cover" />
           </template>
-        </m-form>
+        </m-form-model>
       </FormDrawer>
     </el-card>
 
@@ -202,8 +202,7 @@
   </div>
 </template>
 <script setup>
-import { computed, ref } from 'vue'
-import mForm from '~/components/Form/index.vue'
+import { computed, ref , watch} from 'vue'
 import ListHeader from '~/components/ListHeader.vue'
 import FormDrawer from '~/components/FormDrawer.vue'
 import ChooseImage from '~/components/ChooseImage.vue'
@@ -279,7 +278,7 @@ const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCr
   getData,
   update: updateGoods,
   create: createGoods,
-  beforeSubmit,
+  // beforeSubmit,
 })
 
 const tabbars = [
@@ -353,7 +352,6 @@ const options1 = computed(() => {
       {
         type: 'input',
         prop: 'title',
-        value: form.title,
         label: '商品名称',
         rules: {
           required: true,
@@ -367,11 +365,11 @@ const options1 = computed(() => {
       {
         type: 'slot',
         label: '封面',
+        prop: 'cover',
         slotName: 'uploadImg',
       },
       {
         type: 'select',
-        value: form.category_id,
         prop: 'category_id',
         label: '商品分类',
         key: form.id,
@@ -388,7 +386,6 @@ const options1 = computed(() => {
         type: 'input',
         label: '商品描述',
         prop: 'desc',
-        value: form.desc,
         attrs: {
           type: 'textarea',
         },
@@ -396,7 +393,6 @@ const options1 = computed(() => {
       {
         type: 'input',
         prop: 'unit',
-        value: form.unit,
         label: '单位',
         rules: {
           required: true,
@@ -410,10 +406,9 @@ const options1 = computed(() => {
       {
         type: 'input',
         prop: 'stock',
-        value: form.stock,
         label: '总库存',
         inputOptions: {
-          appendText: '件'
+          appendText: '件',
         },
         attrs: {
           style: { width: '350px' },
@@ -423,10 +418,9 @@ const options1 = computed(() => {
       {
         type: 'input',
         prop: 'min_stock',
-        value: form.min_stock,
         label: '库存预警',
         inputOptions: {
-          appendText: '件'
+          appendText: '件',
         },
         attrs: {
           style: { width: '350px' },
@@ -436,10 +430,9 @@ const options1 = computed(() => {
       {
         type: 'input',
         prop: 'min_price',
-        value: form.min_price,
         label: '最低销售价',
         inputOptions: {
-          appendText: '元'
+          appendText: '元',
         },
         attrs: {
           style: { width: '350px' },
@@ -449,10 +442,9 @@ const options1 = computed(() => {
       {
         type: 'input',
         prop: 'min_oprice',
-        value: form.min_oprice,
         label: '最低原价',
         inputOptions: {
-          appendText: '元'
+          appendText: '元',
         },
         attrs: {
           style: { width: '350px' },
@@ -462,7 +454,6 @@ const options1 = computed(() => {
       {
         type: 'radio',
         prop: 'stock_display',
-        value: form.stock_display,
         label: '库存显示',
         childrenOptions: {
           dataArr: [
@@ -482,6 +473,13 @@ const options1 = computed(() => {
         },
       },
     ],
+  }
+})
+
+watch(form, (val) => {
+  console.log('hhhhh, form changed')
+  if (val.category_id === 5) {
+    console.log('hhhhh')
   }
 })
 </script>

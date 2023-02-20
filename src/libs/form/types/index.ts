@@ -93,9 +93,12 @@ export interface radioKeyOption {
 }
 
 interface InputOptions {
-  // input插槽文本
+  // input插槽内容
   prependText?: string | number,
   appendText?: string | number,  
+  
+  prependCallback?: ( ) => any,
+  appendCallback?: ( ) => any
 }
 
 

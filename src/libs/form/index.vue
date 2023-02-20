@@ -8,8 +8,20 @@
       <el-form-item v-if="!isHidden[item.prop]" :label="item.label" :prop="item.prop">
         <!-- input -->
         <el-input v-if="item.type === 'input'" v-model="model[item.prop!]" :placeholder="item.placeholder" v-bind="item.attrs">
+          <!-- 文本 -->
           <template v-if="item.inputOptions?.prependText" #prepend>{{ item.inputOptions.prependText }}</template>
           <template v-else-if="item.inputOptions?.appendText" #append>{{ item.inputOptions.appendText }}</template>
+          <!-- 自定义文本 -->
+          <template
+            v-else-if="item.inputOptions?.prependCallback"
+            v-html="item.inputOptions.prependCallback && item.inputOptions.prependCallback()"
+            #prepend
+          ></template>
+          <template
+            v-else-if="item.inputOptions?.appendCallback"
+            v-html="item.inputOptions.appendCallback && item.inputOptions.appendCallback()"
+            #append
+          ></template>
         </el-input>
         <!-- select -->
         <el-select v-else-if="item.type === 'select'" v-model="model[item.prop!]" :placeholder="item.placeholder" v-bind="item.attrs">
@@ -134,6 +146,7 @@ let editor
 
 const initForm = () => {
   if (props.formItems && props.formItems.length) {
+    console.log('init form')
     let r: any = {}
     let m: any = {}
 
@@ -176,7 +189,6 @@ const initEditor = (item: IFormItem) => {
   })
 }
 
-
 watch(
   () => props.formItems,
   (newVal) => {
@@ -187,35 +199,61 @@ watch(
   { immediate: true, deep: true }
 )
 
+// 仅监视 value
+// const updateForm = () => {
+//   if (props.formItems && props.formItems.length) {
+//     console.log('updating form')
+//     props.formItems.forEach((item: IFormItem, index) => {
+
+//       watch(
+//         () => props.formItems[index].value,
+//         (newVal) => {
+//           // model.value[item.prop!] = newVal
+//           console.log('🚀 ~ file: index.vue:215 ~ props.formItems.forEach ~ newVal:', newVal)
+//         },
+//         { immediate: true, deep: true }
+//       )
+//     })
+//   }
+// }
+
+
+
 /**
  * @description: 组件 item联动（某项值为特定值时，隐藏指定的item
  * isHiddenObj：{order: 0}，order值为0时，隐藏该item
  */
-watch(
-  model.value,
-  (newVal) => {
-    if (props.formItems && props.formItems.length) {
-      props.formItems.forEach((item) => {
-        // 当前item的prop值
-        const itemProp = item.prop
-        for (let key in item.isHiddenObj) {
-          // 判断是否 满足 隐藏条件
-          if (model.value[key] === item.isHiddenObj[key]) {
-            // 隐藏 item
-            isHidden.value[itemProp] = true
-            console.log('true')
-          } else {
-            // 不隐藏 item
-            isHidden.value[itemProp] = false
-            console.log('false')
+
+
+  watch(
+    model.value,
+    (newVal) => {
+      if (props.formItems && props.formItems.length) {
+        props.formItems.forEach((item) => {
+          if (!item.isHiddenObj) return
+          // 当前item的prop值
+          const itemProp = item.prop
+          for (let key in item.isHiddenObj) {
+            // 判断是否 满足 隐藏条件
+            if (model.value[key] === item.isHiddenObj[key]) {
+              // 隐藏 item
+              isHidden.value[itemProp] = true
+              console.log('true')
+            } else {
+              // 不隐藏 item
+              isHidden.value[itemProp] = false
+              console.log('false')
+            }
           }
-        }
-      })
-      console.log('🚀 ~ file: index.vue:199 ~ props.formItems.forEach ~  isHidden.value', isHidden.value)
-    }
-  },
-  { immediate: true, deep: true }
-)
+        })
+        console.log('🚀 ~ file: index.vue:199 ~ props.formItems.forEach ~  isHidden.value', isHidden.value)
+      }
+    },
+    { immediate: true, deep: true }
+  )
+
+
+
 
 /**
  * @description: 重置表单

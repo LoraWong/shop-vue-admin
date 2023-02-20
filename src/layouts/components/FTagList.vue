@@ -39,7 +39,7 @@ const {
     @apply fixed bg-gray-100 flex items-center px-2;
     top: 64px;
     right: 0;
-    height: 44px;
+    height: 64px;
     z-index: 100;
 }
 .tag-btn{

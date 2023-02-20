@@ -103,7 +103,7 @@ const handleRefresh = () => location.reload()
   cursor: pointer;
 }
 .icon-btn {
-  @apply flex justify-center items-center;
+  @apply flex justify-center items-center m-2;
   width: 40px;
   height: 40px;
   cursor: pointer;

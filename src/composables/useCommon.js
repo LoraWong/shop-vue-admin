@@ -151,8 +151,8 @@ export function useInitForm(opt = {}) {
     if (opt.component === 'm-form') {
       const validate = formRef.value.getValidate()
       if (!validate) return
-      const formData = formRef.value.getFormData()
-      updateData(formData)
+      // const formData = formRef.value.getFormData()
+      updateData(form)
     } else {
       // 非json 表单
       formRef.value.validate((valid) => {
@@ -193,6 +193,11 @@ export function useInitForm(opt = {}) {
     for (const key in defaultForm) {
       form[key] = row[key]
     }
+    // test: 模拟异步请求
+    // setTimeout(() => {
+    //   form.desc = '100'
+    //   form.stock = 500
+    // }, 5000)
   }
 
   // 新增
