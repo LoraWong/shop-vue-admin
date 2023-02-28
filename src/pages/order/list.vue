@@ -134,7 +134,7 @@ import {
   refundOrder
 } from "~/api/order"
 
-import { useInitTable } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
 
 
 const {
@@ -153,7 +153,7 @@ const {
   handleDelete,
 
   multiSelectionIds
-} = useInitTable({
+} = useTable({
   searchForm: {
     no: "",
     tab: "all",

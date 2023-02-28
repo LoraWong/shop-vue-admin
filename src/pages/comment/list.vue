@@ -102,7 +102,7 @@ import {
   reviewGoodsComment
 } from "~/api/goods_comment"
 
-import { useInitTable } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
 
 const roles = ref([])
 
@@ -117,7 +117,7 @@ const {
   getData,
   handleDelete,
   handleStatusChange
-} = useInitTable({
+} = useTable({
   searchForm:{
     title:""
   },

@@ -3,14 +3,10 @@
     <!-- 新增|刷新 -->
     <ListHeader @create="handleCreate" @refresh="getData" />
 
-    <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
-      <el-table-column prop="name" label="会员等级" />
-      <el-table-column prop="discount" label="折扣率" align="center" />
-      <el-table-column prop="level" label="等级序号" align="center" />
-      <el-table-column label="状态" width="120">
-        <template #default="{ row }">
+    <m-table :options="tableOptions" :data="tableData" :loading="loading">
+      <template #status="{ row }">
           <el-switch
-            :modelValue="row.status"
+            :modelValue="row && row.status"
             :active-value="1"
             :inactive-value="0"
             :loading="row.statusLoading"
@@ -19,9 +15,8 @@
           >
           </el-switch>
         </template>
-      </el-table-column>
-      <el-table-column label="操作" width="250" align="center">
-        <template #default="scope">
+
+        <template #action="scope">
           <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
 
           <el-popconfirm title="是否要删除该记录？" confirmButtonText="确认" cancelButtonText="取消" @confirm="handleDelete(scope.row.id)">
@@ -30,8 +25,7 @@
             </template>
           </el-popconfirm>
         </template>
-      </el-table-column>
-    </el-table>
+    </m-table>
 
     <div class="flex items-center justify-center mt-5">
       <el-pagination background layout="prev, pager ,next" :total="total" :current-page="currentPage" :page-size="limit" @current-change="getData" />
@@ -69,15 +63,16 @@ import ListHeader from '~/components/ListHeader.vue'
 import FormDrawer from '~/components/FormDrawer.vue'
 import { getUserLevelList, createUserLevel, updateUserLevel, deleteUserLevel, updateUserLevelStatus } from '~/api/level'
 
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
-const { tableData, loading, currentPage, total, limit, getData, handleDelete, handleStatusChange } = useInitTable({
+const { tableData, loading, currentPage, total, limit, getData, handleDelete, handleStatusChange } = useTable({
   getList: getUserLevelList,
   delete: deleteUserLevel,
   updateStatus: updateUserLevelStatus,
 })
 
-const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useInitForm({
+const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useForm({
   form: {
     name: '',
     level: 100,
@@ -158,4 +153,41 @@ const options = {
     },
   ],
 }
+
+const tableOptions = [
+{
+    prop: 'name',
+    label: '会员等级'
+  },
+  {
+    prop: 'discount',
+    label: '折扣率',
+    attrs: {
+      align: 'center'
+    }
+  },
+  {
+    prop: 'level',
+    label: '等级序号',
+    attrs: {
+      align: 'center'
+    }
+  },
+  {
+    type: 'slot',
+    label: '状态',
+    slotName: 'status',
+    attrs: {
+     width: '120'
+    }
+  },
+  {
+    type: 'slot',
+    label: '操作',
+    slotName: 'action',
+    attrs: {
+      align: 'center'
+    }
+  },
+]
 </script>

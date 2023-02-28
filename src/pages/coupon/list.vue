@@ -2,25 +2,15 @@
   <el-card shadow="never" class="border-0">
     <!-- 新增|刷新 -->
     <ListHeader @create="handleCreate" @refresh="getData" />
-
-    <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
-      <el-table-column label="优惠券名称" width="350">
-        <template #default="{ row }">
-          <div class="border border-dashed py-2 px-4 rounded" :class="row.statusText == '领取中' ? 'active' : 'inactive'">
-            <h5 class="font-bold text-md">{{ row.name }}</h5>
-            <small>{{ row.start_time }} ~ {{ row.end_time }}</small>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="statusText" label="状态" />
-      <el-table-column label="优惠">
-        <template #default="{ row }"> {{ row.type == 0 ? '满减' : '折扣' }} {{ row.type == 0 ? '￥' + row.value : row.value + '折' }} </template>
-      </el-table-column>
-      <el-table-column prop="total" label="发放数量" />
-      <el-table-column prop="used" label="已使用" />
-      <el-table-column label="操作" width="180" align="center">
-        <template #default="scope">
-          <el-button v-if="scope.row.statusText == '未开始'" type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
+    <m-table :options="tableOptions" :data="tableData">
+      <template #couponName="{ row }">
+        <div class="border border-dashed py-2 px-4 rounded" :class="row.statusText == '领取中' ? 'active' : 'inactive'">
+          <h5 class="font-bold text-md">{{ row.name }}</h5>
+          <small>{{ row.start_time }} ~ {{ row.end_time }}</small>
+        </div>
+      </template>
+      <template #action="scope">
+        <el-button v-if="scope.row.statusText == '未开始'" type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
 
           <el-popconfirm
             v-if="scope.row.statusText != '领取中'"
@@ -45,9 +35,8 @@
               <el-button type="danger" size="small">失效</el-button>
             </template>
           </el-popconfirm>
-        </template>
-      </el-table-column>
-    </el-table>
+      </template>
+    </m-table>
 
     <div class="flex items-center justify-center mt-5">
       <el-pagination background layout="prev, pager ,next" :total="total" :current-page="currentPage" :page-size="limit" @current-change="getData" />
@@ -75,7 +64,8 @@ import { computed } from 'vue'
 import ListHeader from '~/components/ListHeader.vue'
 import FormDrawer from '~/components/FormDrawer.vue'
 import { getCouponList, createCoupon, updateCoupon, deleteCoupon, updateCouponStatus } from '~/api/coupon'
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
 function formatStatus(row) {
   let s = '领取中'
@@ -92,7 +82,7 @@ function formatStatus(row) {
   return s
 }
 
-const { tableData, loading, currentPage, total, limit, getData, handleDelete, handleStatusChange } = useInitTable({
+const { tableData, loading, currentPage, total, limit, getData, handleDelete, handleStatusChange } = useTable({
   getList: getCouponList,
 
   onGetListSuccess: (res) => {
@@ -107,7 +97,7 @@ const { tableData, loading, currentPage, total, limit, getData, handleDelete, ha
   updateStatus: updateCouponStatus,
 })
 
-const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useInitForm({
+const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useForm({
   form: {
     name: '',
     type: 0,
@@ -230,6 +220,47 @@ const options = {
     },
   ],
 }
+
+const tableOptions = [
+  {
+    type: 'slot',
+    label: '优惠券名称',
+    slotName: 'couponName',
+    attrs: {
+      width: '350',
+    },
+  },
+  {
+    prop: 'statusText',
+    label: '状态',
+  },
+  {
+    type: 'customText',
+    label: '优惠',
+    customTextCallback: function (row) {
+      const type = row.type == 0 ? '满减' : '折扣'
+      const value = row.type == 0 ? '￥' + row.value : row.value + '折'
+      return `${type} ${value}`
+    },
+  },
+  {
+    prop: 'total',
+    label: '发放数量',
+  },
+  {
+    prop: 'used',
+    label: '已使用',
+  },
+  {
+    type: 'slot',
+    label: '操作',
+    slotName: 'action',
+    attrs: {
+      width: '180',
+      align: 'center'
+    }
+  }
+]
 </script>
 <style scoped>
 .active {

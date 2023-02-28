@@ -47,7 +47,8 @@ import {
   updateNotice,
   deleteNotice
 } from "~/api/notice"
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
 const {
   tableData,
@@ -57,7 +58,7 @@ const {
   limit,
   getData,
   handleDelete
-} = useInitTable({
+} = useTable({
   getList: getNoticeList,
   delete:deleteNotice
 })
@@ -71,7 +72,7 @@ const {
   handleSubmit,
   handleCreate,
   handleEdit
-} = useInitForm({
+} = useForm({
   form: {
     title: "",
     content: ""

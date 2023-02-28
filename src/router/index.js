@@ -4,27 +4,30 @@ import {
 } from 'vue-router'
 
 import Admin from "~/layouts/admin.vue";
-import Index from '~/pages/index.vue'
-import Login from '~/pages/login.vue'
-import NotFound from '~/pages/404.vue'
-import GoodList from '~/pages/goods/list.vue'
-import CategoryList from '~/pages/category/list.vue'
-import UserList from '~/pages/user/list.vue'
-import OrderList from '~/pages/order/list.vue'
-import CommentList from '~/pages/comment/list.vue'
-import ImageList from '~/pages/image/list.vue'
-import NoticeList from '~/pages/notice/list.vue'
-import SettingBase from '~/pages/setting/base.vue'
-import CouponList from '~/pages/coupon/list.vue'
-import ManagerList from '~/pages/manager/list.vue'
-import AccessList from '~/pages/access/list.vue'
-import RoleList from '~/pages/role/list.vue'
-import SkusList from '~/pages/skus/list.vue'
-import LevelList from '~/pages/level/list.vue'
-import SettingBuy from '~/pages/setting/buy.vue'
-import SettingShip from '~/pages/setting/ship.vue'
-import DistributionIndex from '~/pages/distribution/index.vue'
-import DistributionSetting from '~/pages/distribution/setting.vue'
+// const Admin = () => import('~/layouts/admin.vue')
+const Index = () => import('~/pages/index.vue')
+const Login = () => import('~/pages/login.vue')
+const NotFound = () => import('~/pages/404.vue')
+const GoodList = () => import('~/pages/goods/list.vue')
+const UserList = () => import('~/pages/user/list.vue')
+const CategoryList = () => import('~/pages/category/list.vue')
+const OrderList = () => import('~/pages/order/list.vue')
+const CommentList = () => import('~/pages/comment/list.vue')
+const ImageList = () => import('~/pages/image/list.vue')
+const NoticeList = () => import('~/pages/notice/list.vue')
+const SettingBase = () => import('~/pages/setting/base.vue')
+const CouponList = () => import('~/pages/coupon/list.vue')
+const ManagerList = () => import('~/pages/manager/list.vue')
+const AccessList = () => import('~/pages/access/list.vue')
+const RoleList = () => import('~/pages/role/list.vue')
+const SkusList = () => import('~/pages/skus/list.vue')
+const LevelList = () => import('~/pages/level/list.vue')
+const SettingBuy = () => import('~/pages/setting/buy.vue')
+const SettingShip = () => import('~/pages/setting/ship.vue')
+const DistributionIndex = () => import('~/pages/distribution/index.vue')
+const DistributionSetting = () => import('~/pages/distribution/setting.vue')
+const Chart = () => import('~/pages/chart/index.vue')
+
 
 
 // 默认路由，所有用户共享
@@ -51,7 +54,7 @@ const routes = [
 const asyncRoutes = [{
     path:"/",
     name:"/",
-    component:Index,
+    component:Chart,
     meta:{
         title:"后台首页"
     }
@@ -192,15 +195,16 @@ export const router = createRouter({
 export function addRoutes(menus){
     // 是否有新的路由
     let hasNewRoutes = false
-    const findAndAddRoutesByMenus = (arr) =>{
-        arr.forEach(e=>{
-            let item = asyncRoutes.find(o=>o.path == e.frontpath)
+    const findAndAddRoutesByMenus = (menus) =>{
+        menus.forEach(menu=>{
+            let item = asyncRoutes.find(route=>route.path == menu.frontpath)
             if(item && !router.hasRoute(item.path)){
+                // 添加到路由表
                 router.addRoute("admin",item)
                 hasNewRoutes = true
             }
-            if(e.child && e.child.length > 0){
-                findAndAddRoutesByMenus(e.child)
+            if(menu.child && menu.child.length > 0){
+                findAndAddRoutesByMenus(menu.child)
             }
         })
     }

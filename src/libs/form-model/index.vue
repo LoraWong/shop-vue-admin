@@ -61,7 +61,6 @@
             >{{ option[(item.childrenOptions.keyOption as radioKeyOption).radioText!] }}</el-radio
           >
         </el-radio-group>
-        <!-- date Picker -->
         
         <!-- upload组件 -->
         <el-upload
@@ -159,6 +158,7 @@ const emits = defineEmits([
   BEFORE_REMOVE,
   ON_EXCEED,
 ])
+
 
 
 /**

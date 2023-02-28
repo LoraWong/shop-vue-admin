@@ -83,7 +83,8 @@ import {
   toast
 } from "~/composables/util"
 
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
 const {
   tableData,
@@ -94,7 +95,7 @@ const {
   getData,
   handleDelete,
   handleStatusChange
-} = useInitTable({
+} = useTable({
   getList: getRoleList,
   delete: deleteRole,
   updateStatus:updateRoleStatus
@@ -109,7 +110,7 @@ const {
   handleSubmit,
   handleCreate,
   handleEdit
-} = useInitForm({
+} = useForm({
   form: {
     name: "",
     desc: "",

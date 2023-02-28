@@ -2,37 +2,36 @@
   <el-card shadow="never" class="border-0">
     <!-- 新增|刷新 -->
     <ListHeader layout="create,delete,refresh" @create="handleCreate" @refresh="getData" @delete="handleMultiDelete" />
-    <el-table ref="multipleTableRef" @selection-change="handleSelectionChange" :data="tableData" stripe style="width: 100%" v-loading="loading">
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="name" label="规格名称" />
-      <el-table-column prop="default" label="规格值" width="380" />
-      <el-table-column prop="order" label="排序" />
-      <el-table-column label="状态" width="120">
-        <template #default="{ row }">
-          <el-switch
-            :modelValue="row.status"
-            :active-value="1"
-            :inactive-value="0"
-            :loading="row.statusLoading"
-            :disabled="row.super == 1"
-            @change="handleStatusChange($event, row)"
-          >
-          </el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="250" align="center">
-        <template #default="scope">
-          <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
-
-          <el-popconfirm title="是否要删除该规格？" confirmButtonText="确认" cancelButtonText="取消" @confirm="handleDelete(scope.row.id)">
-            <template #reference>
-              <el-button text type="primary" size="small">删除</el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-      </el-table-column>
-    </el-table>
-
+    <m-table
+      ref="multipleTableRef"
+      selection
+      :data="tableData"
+      :options="tableOptions"
+      stripe
+      :loading="loading"
+      @selection-change="handleSelectionChange"
+    >
+      <template #mStatus="{ row }">
+        <el-switch
+          :modelValue="row.status"
+          :active-value="1"
+          :inactive-value="0"
+          :loading="row.statusLoading"
+          :disabled="row.super == 1"
+          @change="handleStatusChange($event, row)"
+        >
+        </el-switch>
+      </template>
+      <!-- bug: 无法显示 -->
+      <template #mAction="{ row }">
+        <el-button type="primary" size="small" text @click="handleEdit(row)">修改</el-button>
+        <el-popconfirm title="是否要删除该规格？" confirmButtonText="确认" cancelButtonText="取消" @confirm="handleDelete(scope.row.id)">
+          <template #reference>
+            <el-button text type="primary" size="small">删除</el-button>
+          </template>
+        </el-popconfirm>
+      </template>
+    </m-table>
     <div class="flex items-center justify-center mt-5">
       <el-pagination background layout="prev, pager ,next" :total="total" :current-page="currentPage" :page-size="limit" @current-change="getData" />
     </div>
@@ -54,7 +53,8 @@ import TagInput from '~/components/TagInput.vue'
 import { getSkusList, createSkus, updateSkus, deleteSkus, updateSkusStatus } from '~/api/skus'
 import { toast } from '~/composables/util'
 
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+import { useTable } from '~/composables/useTable.js'
+import { useForm } from '~/composables/useForm.js'
 
 const {
   tableData,
@@ -68,18 +68,13 @@ const {
   handleSelectionChange,
   multipleTableRef,
   handleMultiDelete,
-} = useInitTable({
+} = useTable({
   getList: getSkusList,
   delete: deleteSkus,
   updateStatus: updateSkusStatus,
 })
 
-const beforeSubmit = (data) => {
-  data.default = form.default
-  return data
-}
-
-const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useInitForm({
+const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useForm({
   form: {
     name: '',
     status: 1,
@@ -106,7 +101,6 @@ const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCr
   getData,
   update: updateSkus,
   create: createSkus,
-  // beforeSubmit,
 })
 
 // 表单配置
@@ -150,8 +144,8 @@ const options = computed(() => {
         rules: [
           {
             required: true,
+            validator: (rule, val) => val.length > 0,
             message: '规格值不能为空',
-            trigger: 'change'
           },
         ],
       },
@@ -159,4 +153,38 @@ const options = computed(() => {
   }
 })
 
+const tableOptions = [
+  {
+    label: '规格名称',
+    prop: 'name',
+  },
+  {
+    label: '规格值',
+    prop: 'default',
+    attrs: {
+      width: '380',
+    },
+  },
+  {
+    label: '排序',
+    prop: 'order',
+  },
+  {
+    type: 'slot',
+    label: '状态',
+    attrs: {
+      width: '120',
+    },
+    slotName: 'mStatus',
+  },
+  {
+    type: 'slot',
+    label: '操作',
+    attrs: {
+      width: '250',
+      align: 'center',
+    },
+    slotName: 'mAction',
+  },
+]
 </script>

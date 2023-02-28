@@ -39,7 +39,6 @@
         <el-button size="small" @click="handleMultiStatusChange(1)" v-if="searchForm.tab == 'all' || searchForm.tab == 'off'">上架</el-button>
         <el-button size="small" @click="handleMultiStatusChange(0)" v-if="searchForm.tab == 'all' || searchForm.tab == 'saling'">下架</el-button>
       </ListHeader>
-
       <el-table ref="multipleTableRef" @selection-change="handleSelectionChange" :data="tableData" stripe style="width: 100%" v-loading="loading">
         <el-table-column type="selection" width="55" />
         <el-table-column label="商品" width="300">
@@ -137,58 +136,7 @@
       </div>
 
       <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
-        <!-- <el-form :model="form" ref="formRef" :rules="rules" label-width="80px" :inline="false">
-          <el-form-item label="商品名称" prop="title">
-            <el-input v-model="form.title" placeholder="请输入商品名称，不能超过60个字符"></el-input>
-          </el-form-item>
-          <el-form-item label="封面" prop="cover">
-            <ChooseImage v-model="form.cover" />
-          </el-form-item>
-          <el-form-item label="商品分类" prop="category_id">
-            <el-select v-model="form.category_id" placeholder="选择所属商品分类">
-              <el-option v-for="item in category_list" :key="item.id" :label="item.name" :value="item.id"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="商品描述" prop="desc">
-            <el-input type="textarea" v-model="form.desc" placeholder="选填，商品卖点"></el-input>
-          </el-form-item>
-          <el-form-item label="单位" prop="unit">
-            <el-input v-model="form.unit" placeholder="请输入单位" style="width: 50%"></el-input>
-          </el-form-item>
-          <el-form-item label="总库存" prop="stock">
-            <el-input v-model="form.stock" type="number" style="width: 40%">
-              <template #append>件</template>
-            </el-input>
-          </el-form-item>
-          <el-form-item label="库存预警" prop="min_stock">
-            <el-input v-model="form.min_stock" type="number" style="width: 40%">
-              <template #append>件</template>
-            </el-input>
-          </el-form-item>
-          <el-form-item label="最低销售价" prop="min_price">
-            <el-input v-model="form.min_price" type="number" style="width: 40%">
-              <template #append>元</template>
-            </el-input>
-          </el-form-item>
-          <el-form-item label="最低原价" prop="min_oprice">
-            <el-input v-model="form.min_oprice" type="number" style="width: 40%">
-              <template #append>元</template>
-            </el-input>
-          </el-form-item>
-          <el-form-item label="库存显示" prop="stock_display">
-            <el-radio-group v-model="form.stock_display">
-              <el-radio :label="0">隐藏</el-radio>
-              <el-radio :label="1">显示</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="是否上架" prop="status">
-            <el-radio-group v-model="form.status">
-              <el-radio :label="0">放入仓库</el-radio>
-              <el-radio :label="1">立即上架</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-form> -->
-        <m-form-model :formItems="options1.formItems" v-model="form" ref="formRef">
+        <m-form-model :formItems="formOptions.formItems" v-model="form" ref="formRef">
           <template #uploadImg>
             <ChooseImage v-model="form.cover" />
           </template>
@@ -214,14 +162,12 @@ import skus from './skus.vue'
 import { getGoodsList, updateGoodsStatus, createGoods, updateGoods, deleteGoods, restoreGoods, destroyGoods } from '~/api/goods'
 import { getCategoryList } from '~/api/category'
 
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
 import { toast } from '~/composables/util'
 
-const beforeSubmit = (data) => {
-  data.cover = form.cover
-  return data
-}
 
 const {
   handleSelectionChange,
@@ -240,7 +186,7 @@ const {
   handleMultiStatusChange,
 
   multiSelectionIds,
-} = useInitTable({
+} = useTable({
   searchForm: {
     title: '',
     tab: 'all',
@@ -260,7 +206,7 @@ const {
   updateStatus: updateGoodsStatus,
 })
 
-const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useInitForm({
+const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useForm({
   form: {
     title: null, //商品名称
     category_id: null, //商品分类
@@ -278,7 +224,6 @@ const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCr
   getData,
   update: updateGoods,
   create: createGoods,
-  // beforeSubmit,
 })
 
 const tabbars = [
@@ -345,7 +290,7 @@ function useMultiAction(func, msg) {
 }
 
 // 表单配置项（计算属性 或 watch都可以
-const options1 = computed(() => {
+const formOptions = computed(() => {
   return {
     labelWidth: 250,
     formItems: [
@@ -482,4 +427,6 @@ watch(form, (val) => {
     console.log('hhhhh')
   }
 })
+
+
 </script>

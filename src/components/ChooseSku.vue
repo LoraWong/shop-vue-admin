@@ -46,9 +46,8 @@ import { reactive, ref } from "vue"
 import {
     getSkusList
 } from "~/api/skus"
-import {
-    useInitTable
-} from "~/composables/useCommon"
+
+import { useTable } from "~/composables/useTable.js";
 
 const dialogVisible = ref(false)
 const activeId = ref(0)
@@ -59,7 +58,7 @@ const {
     total,
     tableData,
     getData
-} = useInitTable({
+} = useTable({
     getList:getSkusList,
     onGetListSuccess:(res)=>{
         tableData.value = res.list

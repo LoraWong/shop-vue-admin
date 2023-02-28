@@ -83,7 +83,7 @@ import { IFormItem, IForm, selectKeyOption, radioKeyOption } from './types'
 import cloneDeep from 'lodash/cloneDeep'
 import type { ElForm } from 'element-plus'
 import E from 'wangeditor'
-import { init } from 'echarts'
+
 
 const props = defineProps({
   // 表单配置项

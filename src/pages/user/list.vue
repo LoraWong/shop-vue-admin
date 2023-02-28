@@ -94,13 +94,14 @@ import SearchItem from '~/components/SearchItem.vue'
 
 import { getUserList, updateUserStatus, createUser, updateUser, deleteUser } from '~/api/user'
 
-import { useInitTable, useInitForm } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
 const roles = ref([])
 
 const user_level = ref([])
 
-const { searchForm, resetSearchForm, tableData, loading, currentPage, total, limit, getData, handleDelete, handleStatusChange } = useInitTable({
+const { searchForm, resetSearchForm, tableData, loading, currentPage, total, limit, getData, handleDelete, handleStatusChange } = useTable({
   searchForm: {
     keyword: '',
     user_level_id: null,
@@ -118,7 +119,7 @@ const { searchForm, resetSearchForm, tableData, loading, currentPage, total, lim
   updateStatus: updateUserStatus,
 })
 
-const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useInitForm({
+const { formDrawerRef, formRef, form, rules, drawerTitle, handleSubmit, handleCreate, handleEdit } = useForm({
   form: {
     username: '',
     password: '',
@@ -202,4 +203,5 @@ const option = computed(() => {
     ],
   }
 })
+
 </script>

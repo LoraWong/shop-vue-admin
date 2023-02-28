@@ -79,7 +79,7 @@ import {
     getAgentList,
     getAgentOrderList
 } from "~/api/distribution"
-import { useInitTable } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
 
 const props = defineProps({
     type:{
@@ -98,7 +98,7 @@ const {
     total,
     limit,
     getData,
-} = useInitTable({
+} = useTable({
     searchForm: {
         type: "all",
         starttime: null,

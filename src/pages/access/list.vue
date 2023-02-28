@@ -83,10 +83,10 @@ import {
     deleteRule
 } from "~/api/rule.js"
 
-import {
-    useInitTable,
-    useInitForm
-} from "~/composables/useCommon.js"
+
+
+import { useTable } from "~/composables/useTable.js";
+import {useForm} from '~/composables/useForm.js';
 
 const options = ref([])
 const defaultExpandedKeys = ref([])
@@ -97,7 +97,7 @@ const {
 
     handleDelete,
     handleStatusChange
-} = useInitTable({
+} = useTable({
     getList:getRuleList,
     onGetListSuccess:(res)=>{
         options.value = res.rules
@@ -118,7 +118,7 @@ const {
   handleSubmit,
   handleCreate,
   handleEdit
-} = useInitForm({
+} = useForm({
   form: {
     rule_id:0,
     menu:0,

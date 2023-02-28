@@ -38,17 +38,14 @@
                 </template>
             </Search>
 
-            <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
-                <el-table-column label="ID" prop="id" align="center" />
-                <el-table-column label="头像" width="65">
-                    <template #default="{ row }">
+            <m-table :options="tableOptions" :data="tableData">
+                <template #avatar="{ row }">
                         <el-avatar :size="40" :src="row.avatar">
                             <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png" />
                         </el-avatar>
                     </template>
-                </el-table-column>
-                <el-table-column label="用户信息" width="200">
-                    <template #default="{ row }">
+
+                    <template #userInfo="{ row }">
                         <div class="text-xs">
                             <p>用户：{{ row.username }}</p>
                             <p>昵称：{{ row.nickname }}</p>
@@ -56,22 +53,13 @@
                             <p>电话：{{ row.phone }}</p>
                         </div>
                     </template>
-                </el-table-column>
-                <el-table-column label="推广用户数量" prop="share_num" align="center"/>
-                <el-table-column label="订单数量" prop="share_order_num" align="center"/>
-                <el-table-column label="订单金额" prop="order_price" align="center"/>
-                <el-table-column label="账户佣金" prop="commission" align="center"/>
-                <el-table-column label="已提现金额" prop="cash_out_price" align="center"/>
-                <el-table-column label="提现次数" prop="cash_out_time" align="center"/>
-                <el-table-column label="未提现金额" prop="no_cash_out_price" align="center"/>
-                <el-table-column fixed="right" label="操作" width="180" align="center">
-                    <template #default="{ row }">
+
+                    <template #action="{ row }">
                         <el-button type="primary" size="small" text @click="openDataDrawer(row.id,'user')">推广人</el-button>
                         <el-button type="primary" size="small" text
                         @click="openDataDrawer(row.id,'order')">推广订单</el-button>
                     </template>
-                </el-table-column>
-            </el-table>
+            </m-table>
 
             <div class="flex items-center justify-center mt-5">
                 <el-pagination background layout="prev, pager ,next" :total="total" :current-page="currentPage"
@@ -94,7 +82,8 @@ import {
     getAgentList
 } from "~/api/distribution"
 
-import { useInitTable } from '~/composables/useCommon.js'
+
+import { useTable } from "~/composables/useTable.js";
 
 const {
     searchForm,
@@ -105,7 +94,7 @@ const {
     total,
     limit,
     getData,
-} = useInitTable({
+} = useTable({
     searchForm: {
         keyword: "",
         type: "all",
@@ -124,4 +113,96 @@ const orderDataDrawerRef = ref(null)
 const openDataDrawer = (id,type)=>{
     (type == "user" ? dataDrawerRef : orderDataDrawerRef).value.open(id)
 }
+
+
+const tableOptions = [
+    {
+        prop: 'id',
+        label: 'ID',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        type: 'slot',
+        label: '头像',
+        slotName: 'avatar',
+        attrs: {
+            width: '65'
+        }
+    },
+    {
+        type: 'slot',
+        label: '用户信息',
+        slotName: 'userInfo',
+        attrs: {
+            width: '200'
+        }
+    },
+    {
+        prop: 'share_num',
+        label: '推广用户数量',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        prop: 'share_order_num',
+        label: '订单数量',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        prop: 'order_price',
+        label: '订单金额',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        prop: 'commission',
+        label: '账户佣金',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        prop: 'cash_out_price',
+        label: '已提现金额',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        prop: 'cash_out_time',
+        label: '提现次数',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        prop: 'no_cash_out_price',
+        label: '未提现金额',
+        attrs: {
+            align: 'center'
+        }
+        
+    },
+    {
+        type: 'slot',
+        label: '操作',
+        slotName: 'action',
+        attrs: {
+            width: '180'
+        }
+    }
+]
 </script>

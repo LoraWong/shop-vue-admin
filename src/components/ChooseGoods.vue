@@ -53,7 +53,8 @@ import { ref } from "vue"
 import {
     getGoodsList
 } from "~/api/goods.js"
-import { useInitTable } from '~/composables/useCommon.js'
+import { useTable } from "~/composables/useTable.js";
+
 const dialogvisible = ref(false)
 
 const {
@@ -67,7 +68,7 @@ const {
   limit,
   getData,
   multiSelectionIds
-} = useInitTable({
+} = useTable({
   searchForm: {
     title: "",
     tab: "all",
